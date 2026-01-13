@@ -1,62 +1,85 @@
-from django.shortcuts import render, redirect
-
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
-
 from django.contrib.auth.models import User
-from .models import Channel, Video, Comment
+from django.core.paginator import Paginator
+from django.contrib import messages
+from .models import Channel, Video, Comment, UserProfile
 
 # Create your views here.
 def home(request):
-    videos = Video.objects.all().order_by('-upload_time')
+    # Optimize query with select_related and pagination
+    videos_list = Video.objects.select_related('channel', 'user').all().order_by('-upload_time')
+    paginator = Paginator(videos_list, 12)  # Show 12 videos per page
+    page_number = request.GET.get('page')
+    videos = paginator.get_page(page_number)
 
-    return render(request, "home.html", {"videos":videos})
+    return render(request, "home.html", {"videos": videos})
 
-def channel(request, username,pk):
-    user = User.objects.get(username=username)
-    channel = Channel.objects.get(user=user, id=pk)
-    videos = Video.objects.filter(channel=channel).order_by('-upload_time')
+def channel(request, username, pk):
+    try:
+        user = get_object_or_404(User, username=username)
+        channel = get_object_or_404(Channel, user=user, id=pk)
+        videos_list = Video.objects.filter(channel=channel).select_related('channel', 'user').order_by('-upload_time')
+        paginator = Paginator(videos_list, 12)  # Show 12 videos per page
+        page_number = request.GET.get('page')
+        videos = paginator.get_page(page_number)
 
-    if request.method == "POST":
-        action = request.POST['subscribe']
+        if request.method == "POST":
+            action = request.POST.get('subscribe')
+            if action == 'unsubscribe':
+                channel.subscribers.remove(request.user)
+                messages.success(request, f"Unsubscribed from {channel.name}")
+            else:
+                channel.subscribers.add(request.user)
+                messages.success(request, f"Subscribed to {channel.name}")
+            channel.save()
 
-        if action == 'unsubscribe':
-            channel.subscribers.remove(request.user)
-        else:
-            channel.subscribers.add(request.user)
-
-        channel.save()
-
-    return render(request, "channel.html", {"channel":channel, "videos":videos})
+        return render(request, "channel.html", {"channel": channel, "videos": videos})
+    except Exception as e:
+        messages.error(request, "An error occurred while loading the channel.")
+        return redirect('home')
 
 def video(request, pk):
-    video = Video.objects.get(id=pk)
-    return render(request, "video.html", {"video":video})
+    try:
+        video = get_object_or_404(Video.objects.select_related('channel', 'user'), id=pk)
+        return render(request, "video.html", {"video": video})
+    except Exception as e:
+        messages.error(request, "Video not found.")
+        return redirect('home')
 
 def create_user(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
+        email = request.POST.get('email')
 
         if form.is_valid():
             user = form.save()
+            # Create UserProfile
+            UserProfile.objects.create(user=user, email=email)
             login(request, user)
+            messages.success(request, "Account created successfully!")
             return redirect('home')
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = UserCreationForm()
 
-    return render(request, "create_user.html", {'form':form})
+    return render(request, "create_user.html", {'form': form})
 
 def custom_login(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
+            messages.success(request, f"Welcome back, {username}!")
             return redirect('home')
         else:
+            messages.error(request, "Invalid username or password.")
             return redirect('login')
 
     else:
@@ -90,60 +113,82 @@ def upload_video(request):
         channels = Channel.objects.filter(user=request.user)
 
         if request.method == "POST":
-            channel_id = request.POST['video_channel']
+            try:
+                channel_id = request.POST.get('video_channel')
+                channel = get_object_or_404(Channel, id=channel_id, user=request.user)
 
-            channel = Channel.objects.get(id=channel_id)
+                video_file = request.FILES.get('video_file')
+                title = request.POST.get('video_title')
+                description = request.POST.get('video_description')
+                thumbnail = request.FILES.get('video_thumbnail')
+                category = request.POST.get('video_category')
 
-            video_file = request.FILES.get('video_file')
-            title = request.POST['video_title']
-            description = request.POST['video_description']
-            thumbnail = request.FILES.get('video_thumbnail')
-
-            if channel and video_file and title and thumbnail:
-                video = Video(user=request.user, channel=channel, video_file=video_file, title=title, description=description, thumbnail=thumbnail)
-                video.save()
-
-                return redirect('home')
-
+                if channel and video_file and title and thumbnail:
+                    video = Video(
+                        user=request.user, 
+                        channel=channel, 
+                        video_file=video_file, 
+                        title=title, 
+                        description=description, 
+                        thumbnail=thumbnail,
+                        category=category
+                    )
+                    video.save()
+                    messages.success(request, "Video uploaded successfully!")
+                    return redirect('home')
+                else:
+                    messages.error(request, "Please fill in all required fields.")
+            except Exception as e:
+                messages.error(request, "An error occurred while uploading the video.")
         else:
-            return render(request, "upload_video.html", {"channels":channels})
+            return render(request, "upload_video.html", {"channels": channels})
 
     else:
         return redirect('login')
 
-    return render(request, "upload_video.html", {"channels":channels})
+    return render(request, "upload_video.html", {"channels": channels})
 
 def searched(request):
     if request.method == "POST":
-        searched_value = request.POST['s']
-        videos = Video.objects.filter(title__contains=searched_value)
-        channels = Channel.objects.filter(name__contains=searched_value)
-
-        return render(request, "searched.html", {"videos":videos, "channels":channels})
+        searched_value = request.POST.get('s')
+        if searched_value:
+            videos_list = Video.objects.filter(title__icontains=searched_value).select_related('channel', 'user')
+            paginator = Paginator(videos_list, 12)
+            page_number = request.GET.get('page')
+            videos = paginator.get_page(page_number)
+            channels = Channel.objects.filter(name__icontains=searched_value)
+            return render(request, "searched.html", {"videos": videos, "channels": channels, "search_term": searched_value})
+        else:
+            messages.warning(request, "Please enter a search term.")
+            return redirect('home')
+    return redirect('home')
 
 def video_view(request, pk):
     if request.user.is_authenticated:
-        video = Video.objects.get(id=pk)
-
-        if not video.view.filter(id=request.user.id):
-            video.view.add(request.user)
-        
-        return redirect('video', pk=pk)
+        try:
+            video = get_object_or_404(Video, id=pk)
+            if not video.view.filter(id=request.user.id).exists():
+                video.view.add(request.user)
+            return redirect('video', pk=pk)
+        except Exception as e:
+            messages.error(request, "An error occurred while updating view count.")
+            return redirect('video', pk=pk)
     else:
         return redirect('login')
 
 def video_like(request, pk):
     if request.user.is_authenticated:
-        video = Video.objects.get(id=pk)
-
-        if not video.dislikes.filter(id=request.user.id):
-            if video.likes.filter(id=request.user.id):
-                video.likes.remove(request.user)
-            else:
-                video.likes.add(request.user)
-        
-        return redirect('video', pk=pk)
-    
+        try:
+            video = get_object_or_404(Video, id=pk)
+            if not video.dislikes.filter(id=request.user.id).exists():
+                if video.likes.filter(id=request.user.id).exists():
+                    video.likes.remove(request.user)
+                else:
+                    video.likes.add(request.user)
+            return redirect('video', pk=pk)
+        except Exception as e:
+            messages.error(request, "An error occurred while processing your like.")
+            return redirect('video', pk=pk)
     else:
         return redirect('login')
 
