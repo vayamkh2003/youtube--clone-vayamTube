@@ -164,7 +164,7 @@ def searched(request):
     if request.method == "POST":
         searched_value = request.POST.get('s')
         if searched_value:
-            videos_list = Video.objects.filter(title__icontains=searched_value).select_related('channel', 'user')
+            videos_list = Video.objects.filter(title__icontains=searched_value).select_related('channel', 'user').order_by('-upload_time')
             paginator = Paginator(videos_list, 12)
             page_number = request.GET.get('page')
             videos = paginator.get_page(page_number)
