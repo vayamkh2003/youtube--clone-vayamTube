@@ -37,7 +37,7 @@ body {
 .skeleton-title { height: 16px; border-radius: 6px; }
 
 /* Player loader overlay */
-#playerWrapper { background: #000; }
+#playerWrapper { background: hsl(18, 89%, 50%); }
 
 .footer { margin-top: 40px; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); }
 
