@@ -11,8 +11,8 @@
           </li>
           {% if request.user.is_authenticated %}
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ request.user.username }}
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{{ request.user.userprofile.profile_picture.url }}" class="rounded-circle avatar-sm me-2" alt="{{ request.user.username }}">{{ request.user.username }}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                     <li><a class="dropdown-item" href="{% url 'channel' username=request.user.username pk=request.user.id %}">My Channel</a></li>

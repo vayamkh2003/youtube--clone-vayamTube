@@ -9,7 +9,7 @@
                 <div id="loader" class="d-flex justify-content-center align-items-center position-absolute w-100 h-100" style="background: rgba(0,0,0,0.3); z-index:10;">
                     <div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div>
                 </div>
-                <video id="videoPlayer" width="100%" controls>
+                <video id="videoPlayer" class="skeleton" width="100%" controls>
                     <source src="{{video.video_file.url}}" type="video/mp4">
                 </video>
             </div>
@@ -22,7 +22,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <strong>{{video.title}}</strong>
-                            <div class="text-muted small">@{{video.channel.name}} · {{video.upload_time|date:"M d, Y"}}</div>
+                            <div class="text-muted small"><img src="{{video.channel.profile_picture.url}}" class="rounded-circle avatar-sm me-2" alt="{{video.channel.name}}">{{video.channel.name}} · {{video.upload_time|date:"M d, Y"}}</div>
                         </div>
                         <div class="text-end">
                             {% if request.user in video.likes.all %}
@@ -103,13 +103,16 @@
     </form>
 </div>
 
-<h2 style="margin-left: 10%;">Comments: </h2>
-<div class="card" style="margin: 20px; width: 80%; margin-left: 10%;">
-    <ul>
+<h2 class="mt-4">Comments</h2>
+<div class="card p-3 mb-4">
+    <ul class="list-unstyled mb-0">
         {% for comment in video.comments.all %}
-            <li>
-                <p><strong>{{comment.user.username}}</strong>: {{comment.created_at}}</p>
-                <p>{{comment.text}}</p>
+            <li class="d-flex mb-3">
+                <img src="{{comment.user.userprofile.profile_picture.url}}" class="rounded-circle avatar-sm me-3" alt="{{comment.user.username}}">
+                <div>
+                    <p class="mb-1"><strong>{{comment.user.username}}</strong> <small class="text-muted">· {{comment.created_at|date:"M d, Y H:i"}}</small></p>
+                    <p class="mb-0">{{comment.text}}</p>
+                </div>
             </li>
         {% empty %}
             <p>No comments yet</p>

@@ -9,11 +9,11 @@
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
             <div class="card h-100">
                 <a href="{% url 'video' video.id %}">
-                    <img src="{{video.thumbnail.url}}" class="card-img-top" alt="{{video.title}}" style="height:150px; object-fit:cover;">
+                    <img src="{{video.thumbnail.url}}" class="card-img-top video-thumbnail skeleton" loading="lazy" alt="{{video.title}}" style="height:150px; object-fit:cover;">
                 </a>
                 <div class="card-body">
                     <h6 class="card-title">{{video.title}}</h6>
-                    <p class="card-text text-muted mb-1">@{{video.channel.name}}</p>
+                    <p class="card-text text-muted mb-1"><img src="{{video.channel.profile_picture.url}}" class="rounded-circle avatar-sm me-2" alt="{{video.channel.name}}">{{video.channel.name}}</p>
                     <p class="card-text small text-muted">{{video.number_of_views}} views · {{video.upload_time|date:"M d, Y"}}</p>
                 </div>
             </div>

@@ -1,0 +1,49 @@
+/* VayamTube custom styles - improved palette & skeletons */
+:root{
+  --bg:#0b1220;
+  --card:#0f1720;
+  --muted:#9fb0c8;
+  --text:#e6edf3;
+  --accent:#1f8ef1;
+  --success:#29a745;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.navbar, .card, .footer { background: transparent; }
+.navbar-brand { font-weight: 700; letter-spacing: 0.5px; color: var(--text); }
+.navbar .nav-link { color: rgba(230,237,243,0.85); }
+.navbar .nav-link:hover { color: var(--accent); }
+
+.card.h-100 { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03)); border: none; transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+.card.h-100:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0,0,0,0.6); }
+.card .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.card .card-text { color: var(--muted); }
+
+.video-thumbnail { height: 150px; object-fit: cover; display:block; width:100%; }
+.avatar-sm { width:34px; height:34px; object-fit:cover; }
+.avatar-md { width:48px; height:48px; object-fit:cover; }
+.rounded-circle { border-radius: 50%; }
+
+/* Skeleton loader */
+.skeleton { position: relative; overflow: hidden; background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04), rgba(255,255,255,0.02)); }
+.skeleton::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.06), rgba(255,255,255,0.02)); transform: translateX(-100%); animation: shimmer 1.2s infinite; }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.skeleton-text { height: 14px; border-radius: 4px; }
+.skeleton-title { height: 16px; border-radius: 6px; }
+
+/* Player loader overlay */
+#playerWrapper { background: #000; }
+
+.footer { margin-top: 40px; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); }
+
+/* Accessibility and small tweaks */
+.btn-primary { background: var(--accent); border-color: var(--accent); }
+.btn-primary:hover { background: #1977c9; border-color: #1977c9; }
+
+/* Responsive tweaks */
+@media (max-width: 576px) { .video-thumbnail { height: 110px; } }

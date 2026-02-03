@@ -42,10 +42,10 @@
     {% for channel in channels %}
     <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
         <a class="card h-100" href="{% url 'channel' username=channel.user.username pk=channel.id %}">
-            <img src="{{channel.profile_picture.url}}" class="card-img-top" alt="{{channel.name}}">
+            <img src="{{channel.profile_picture.url}}" class="card-img-top skeleton" loading="lazy" alt="{{channel.name}}">
             <div class="card-body">
                 <h5 class="card-title">{{channel.name}}</h5>
-                <p class="card-text text-muted">{{channel.subscribers.count}} subscribers</p>
+                <p class="card-text text-muted"><img src="{{channel.profile_picture.url}}" class="rounded-circle avatar-sm me-2" alt="{{channel.name}}">{{channel.subscribers.count}} subscribers</p>
             </div>
         </a>
     </div>
@@ -57,11 +57,11 @@
     <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
         <div class="card h-100">
             <a href="{% url 'video' video.id %}">
-                <img src="{{video.thumbnail.url}}" class="card-img-top video-thumbnail" alt="{{video.title}}">
+                <img src="{{video.thumbnail.url}}" class="card-img-top video-thumbnail skeleton" loading="lazy" alt="{{video.title}}">
             </a>
             <div class="card-body">
                 <h6 class="card-title">{{video.title}}</h6>
-                <p class="card-text text-muted small">@{{video.channel.name}} · {{video.number_of_views}} views</p>
+                <p class="card-text text-muted small"><img src="{{video.channel.profile_picture.url}}" class="rounded-circle avatar-sm me-2" alt="{{video.channel.name}}">@{{video.channel.name}} · {{video.number_of_views}} views</p>
             </div>
         </div>
     </div>
