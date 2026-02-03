@@ -8,23 +8,29 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('app', '0006_video'),
+        ("app", "0006_video"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='video',
-            name='dislikes',
-            field=models.ManyToManyField(blank=True, related_name='video_dislike', to=settings.AUTH_USER_MODEL),
+            model_name="video",
+            name="dislikes",
+            field=models.ManyToManyField(
+                blank=True, related_name="video_dislike", to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='video',
-            name='likes',
-            field=models.ManyToManyField(blank=True, related_name='video_like', to=settings.AUTH_USER_MODEL),
+            model_name="video",
+            name="likes",
+            field=models.ManyToManyField(
+                blank=True, related_name="video_like", to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='video',
-            name='vid_views',
-            field=models.ManyToManyField(blank=True, related_name='video_view', to=settings.AUTH_USER_MODEL),
+            model_name="video",
+            name="vid_views",
+            field=models.ManyToManyField(
+                blank=True, related_name="video_view", to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]
