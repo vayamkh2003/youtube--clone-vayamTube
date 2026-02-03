@@ -1,3 +1,6 @@
 [flake8]
 max-line-length = 88
-exclude = .git,__pycache__,media
+exclude = .git,__pycache__,media,app/migrations
+
+per-file-ignores =
+    youtube/settings.py: E501
