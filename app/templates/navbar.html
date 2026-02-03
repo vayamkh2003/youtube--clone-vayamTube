@@ -10,17 +10,17 @@
             <a class="nav-link active" aria-current="page" href="#">Home</a>
           </li>
           {% if request.user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'channel' username=request.user.username pk=request.user.id %}">My-Channel</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'upload-video' %}">Upload</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'create-channel' %}">New-Channel</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'logout' %}">Logout</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ request.user.username }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                    <li><a class="dropdown-item" href="{% url 'channel' username=request.user.username pk=request.user.id %}">My Channel</a></li>
+                    <li><a class="dropdown-item" href="{% url 'upload-video' %}">Upload</a></li>
+                    <li><a class="dropdown-item" href="{% url 'create-channel' %}">New Channel</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                </ul>
             </li>
         {% else %}
             <li class="nav-item">

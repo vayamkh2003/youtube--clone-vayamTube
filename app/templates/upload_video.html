@@ -43,9 +43,29 @@
         <option value="Other">Other</option>
     </select>
 
+    <small class="form-text text-muted">Max video size: 200MB. Thumbnail max size: 5MB.</small>
     <br>
 
-    <button type="submit" class="btn btn-primary">Upload Video</button>
+    <button id="uploadBtn" type="submit" class="btn btn-primary">Upload Video</button>
+</form>
+
+<script>
+document.getElementById('uploadBtn').addEventListener('click', function(e){
+    const videoFile = document.querySelector('input[name="video_file"]').files[0];
+    const thumbFile = document.querySelector('input[name="video_thumbnail"]').files[0];
+    const MAX_VIDEO = 200 * 1024 * 1024; // 200MB
+    const MAX_IMG = 5 * 1024 * 1024; // 5MB
+
+    if (videoFile && videoFile.size > MAX_VIDEO){
+        e.preventDefault();
+        alert('Video file is too large (max 200MB).');
+    }
+    if (thumbFile && thumbFile.size > MAX_IMG){
+        e.preventDefault();
+        alert('Thumbnail is too large (max 5MB).');
+    }
+});
+</script>
 </form>
 
 {% endblock %}

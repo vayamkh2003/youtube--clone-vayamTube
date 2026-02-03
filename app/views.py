@@ -123,7 +123,21 @@ def upload_video(request):
                 thumbnail = request.FILES.get('video_thumbnail')
                 category = request.POST.get('video_category')
 
-                if channel and video_file and title and thumbnail:
+                # Server-side validation
+                MAX_VIDEO_SIZE = 200 * 1024 * 1024  # 200 MB
+                MAX_IMAGE_SIZE = 5 * 1024 * 1024    # 5 MB
+
+                if not (channel and video_file and title and thumbnail):
+                    messages.error(request, "Please fill in all required fields.")
+                elif hasattr(video_file, 'content_type') and not str(video_file.content_type).startswith('video'):
+                    messages.error(request, "Uploaded file is not a valid video type.")
+                elif video_file.size > MAX_VIDEO_SIZE:
+                    messages.error(request, "Video file too large (max 200MB).")
+                elif thumbnail and (hasattr(thumbnail, 'content_type') and not str(thumbnail.content_type).startswith('image')):
+                    messages.error(request, "Thumbnail must be an image file.")
+                elif thumbnail and thumbnail.size > MAX_IMAGE_SIZE:
+                    messages.error(request, "Thumbnail too large (max 5MB).")
+                else:
                     video = Video(
                         user=request.user, 
                         channel=channel, 
@@ -136,8 +150,6 @@ def upload_video(request):
                     video.save()
                     messages.success(request, "Video uploaded successfully!")
                     return redirect('home')
-                else:
-                    messages.error(request, "Please fill in all required fields.")
             except Exception as e:
                 messages.error(request, "An error occurred while uploading the video.")
         else:

@@ -1,3 +1,8 @@
 Django==4.1.4
 Pillow==9.5.0
 django-crispy-forms==2.0
+python-decouple==3.8
+black==24.3.0
+flake8==6.1.0
+pre-commit==3.4.0
+pytest-django==4.5.2
